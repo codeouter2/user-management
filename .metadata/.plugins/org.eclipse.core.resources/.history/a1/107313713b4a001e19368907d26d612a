@@ -1,0 +1,79 @@
+package com.auth.user.management.service.impl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.auth.user.management.config.CaptchaConfig;
+import com.auth.user.management.service.UserService;
+
+@Service
+public class UserServiceImpl implements UserService{
+	
+	final static Logger logger = LogManager.getLogger(UserServiceImpl.class);
+	
+	@Autowired
+	private CaptchaConfig userConfig;
+
+	@Override
+	public String captcha() {
+		logger.debug("Entryt into - captcha processing");
+		
+		String captcha = processCaptcha();
+		
+		
+	}
+
+	private String processCaptcha() {
+		String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String lower = "abcdefghijklmnopqrstuvwxyz";
+		String number= "0123456789";
+		String special="!@#$%&";
+		String str = "";
+		if(userConfig.getCaptchaOnlyWithUpperLetter()) {
+			str=getCaptchaReady(upper);
+		}else if(userConfig.getCaptchaOnlyWithLowerLetter()) {
+			str=getCaptchaReady(lower);
+		}
+		else if(userConfig.getCaptchaOnlyWithBothLetter()) {
+			str=getCaptchaReady(upper+lower);
+		}
+		else if(userConfig.getCaptchaWithLowerAndNumber()) {
+			str=getCaptchaReady(lower+number);
+		}
+		else if(userConfig.getCaptchaWithUpperAndNumber()) {
+			str=getCaptchaReady(upper+number);
+		}
+		else if(userConfig.getCaptchaWithAlphanumericAndSpecial()) {
+			str=getCaptchaReady(upper+lower+special+number);
+		}
+		else {
+			str=getCaptchaReady(upper+lower+number);
+		}
+		return str;
+	}
+
+	private String getCaptchaReady(String captchaChar) {
+		int length = userConfig.getCaptchaLength();
+		StringBuilder captchaBuild = new StringBuilder();
+		List<Character> newCaptcha = new ArrayList<>();
+		String finalCaptcha = "";
+		for(int i=0;i<length;i++) {
+			int randomIndex = (int) (Math.random()*captchaChar.length());
+			char charAdd = captchaChar.charAt(randomIndex);
+			captchaBuild.append(charAdd);
+		}
+		newCaptcha = captchaBuild.chars().mapToObj(e -> (char)e).collect(Collectors.toList());
+		Collections.shuffle(newCaptcha,new Random());
+		finalCaptcha = newCaptcha.stream().map(String :: valueOf).collect(Collectors.joining());
+		return finalCaptcha;
+	}
+	
+}

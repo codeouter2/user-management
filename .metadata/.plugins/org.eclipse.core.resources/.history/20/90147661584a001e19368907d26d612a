@@ -1,0 +1,8 @@
+package com.auth.user.management.service;
+
+import java.io.IOException;
+
+public interface UserService {
+
+	public String captcha() throws IOException ;
+}

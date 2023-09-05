@@ -1,0 +1,11 @@
+package com.auth.user.management.config;
+
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+
+@Component
+@PropertySource("classpath:user_auth.properties")
+public class UserConfig {
+
+	
+}

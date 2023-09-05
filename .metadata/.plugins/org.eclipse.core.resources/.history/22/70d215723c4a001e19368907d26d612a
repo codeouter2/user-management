@@ -1,0 +1,6 @@
+package com.auth.user.management.service;
+
+public interface UserService {
+
+	public String captcha();
+}

@@ -1,0 +1,8 @@
+package com.auth.user.management.service;
+
+import org.springframework.http.ResponseEntity;
+
+public interface UserService {
+
+	public void captcha();
+}

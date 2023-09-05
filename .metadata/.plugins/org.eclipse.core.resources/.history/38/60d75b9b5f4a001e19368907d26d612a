@@ -1,0 +1,140 @@
+package com.auth.user.management.service.impl;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.auth.user.management.config.CaptchaConfig;
+import com.auth.user.management.service.UserService;
+import com.auth.user.management.util.Algorithm;
+import com.auth.user.management.util.DateAndTime;
+import com.auth.user.management.util.ValidationHeaders;
+
+
+@Service
+public class UserServiceImpl implements UserService{
+	
+	final static Logger logger = LogManager.getLogger(UserServiceImpl.class);
+	
+	@Autowired
+	private CaptchaConfig captchaConfig;
+
+	@Override
+	public ResponseEntity<Object> captcha() throws Exception {
+		logger.debug("Entry into - captcha processing");
+		String captcha = processCaptcha();
+		ResponseEntity<Object> captchaReady = getCaptchaImage(captcha);
+		logger.debug("Exit from - captcha processing");
+		return captchaReady;
+	}
+
+	private ResponseEntity<Object> getCaptchaImage(String captchaVal) throws Exception {
+		logger.debug("Entry into get captcha image");
+		String fileName="captcha.jpg";
+		String token = null;
+		try(OutputStream os = new FileOutputStream(fileName,false)){
+			String data=DateAndTime.tokenExpireDate(captchaConfig.getCaptchaExpireInSecond())+captchaVal;
+			token=Algorithm.encrypt(data,captchaConfig.getCaptchaEncryptionKey());
+			int width=130;
+			int height=35;
+			BufferedImage bufferImg = new BufferedImage(width,height,BufferedImage.OPAQUE);
+			Graphics graphics = bufferImg.createGraphics();
+			graphics.setFont(new Font("Arial",Font.BOLD,20));
+			graphics.setColor(new Color(255,255,255));
+			graphics.fillRect(0,0,width,height);
+			graphics.setColor(new Color(0,0,0));
+			graphics.drawString(captchaVal,20,25); 
+			ImageIO.write(bufferImg, "jpg",os);
+		}
+		
+		File file = new File("captcha.jpg");
+		
+		HttpHeaders headers = ValidationHeaders.getHttpHeaders();
+		headers.add("Access-control-Expose-Headers","token");
+		headers.add("Cache-Control","no-cache,no-store,must-revalidate");
+		headers.add("Pragma","no-cache");
+		headers.add("Content-disposition","attachmnet; filename="+fileName);
+		headers.add("token",token);
+		
+		InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+		logger.debug("Exit from get captcha image");
+		
+		return ResponseEntity.ok()
+				.headers(headers)
+				.contentLength(file.length())
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(resource);
+	}
+
+	private String processCaptcha() {
+		logger.debug("Entry into captcha processing");
+		String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String lower = "abcdefghijklmnopqrstuvwxyz";
+		String number= "0123456789";
+		String special="!@#$%&";
+		String str = "";
+		if(userConfig.getCaptchaOnlyWithUpperLetter()) {
+			str=getCaptchaReady(upper);
+		}else if(userConfig.getCaptchaOnlyWithLowerLetter()) {
+			str=getCaptchaReady(lower);
+		}
+		else if(userConfig.getCaptchaOnlyWithBothLetter()) {
+			str=getCaptchaReady(upper+lower);
+		}
+		else if(userConfig.getCaptchaWithLowerAndNumber()) {
+			str=getCaptchaReady(lower+number);
+		}
+		else if(userConfig.getCaptchaWithUpperAndNumber()) {
+			str=getCaptchaReady(upper+number);
+		}
+		else if(userConfig.getCaptchaWithAlphanumericAndSpecial()) {
+			str=getCaptchaReady(upper+lower+special+number);
+		}
+		else {
+			str=getCaptchaReady(upper+lower+number);
+		}
+		logger.debug("Exit from captcha processing");
+		return str;
+	}
+
+	private String getCaptchaReady(String captchaChar) {
+		logger.debug("Entry into captcha ready");
+		int length = userConfig.getCaptchaLength();
+		StringBuilder captchaBuild = new StringBuilder();
+		List<Character> newCaptcha = new ArrayList<>();
+		String finalCaptcha = "";
+		for(int i=0;i<length;i++) {
+			int randomIndex = (int) (Math.random()*captchaChar.length());
+			char charAdd = captchaChar.charAt(randomIndex);
+			captchaBuild.append(charAdd);
+		}
+		newCaptcha = captchaBuild.chars().mapToObj(e -> (char)e).collect(Collectors.toList());
+		Collections.shuffle(newCaptcha,new Random());
+		finalCaptcha = newCaptcha.stream().map(String :: valueOf).collect(Collectors.joining());
+		logger.debug("Exit from captcha ready");
+		return finalCaptcha;
+	}
+	
+}

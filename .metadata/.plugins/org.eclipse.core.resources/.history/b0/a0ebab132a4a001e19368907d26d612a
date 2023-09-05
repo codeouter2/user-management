@@ -1,0 +1,12 @@
+package com.auth.user.management.service.impl;
+
+import com.auth.user.management.service.UserService;
+
+public class UserServiceImpl implements UserService{
+
+	@Override
+	public void captcha() {
+		
+	}
+
+}

@@ -1,0 +1,14 @@
+package com.auth.user.management.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import com.auth.user.management.service.UserService;
+
+@Service
+public class UserServiceImpl implements UserService{
+
+	@Override
+	public void captcha() {
+		
+	}
+}

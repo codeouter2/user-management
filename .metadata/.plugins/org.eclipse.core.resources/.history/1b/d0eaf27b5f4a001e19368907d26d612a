@@ -1,0 +1,10 @@
+package com.auth.user.management.service;
+
+import java.io.IOException;
+
+import org.springframework.http.ResponseEntity;
+
+public interface UserService {
+
+	public ResponseEntity<Object> captcha() throws IOException ;
+}

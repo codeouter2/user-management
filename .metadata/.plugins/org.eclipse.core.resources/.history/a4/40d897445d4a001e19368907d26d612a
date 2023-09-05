@@ -1,0 +1,45 @@
+package com.auth.user.management.util;
+
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Algorithm {
+
+	static Logger logger = LoggerFactory.getLogger(Algorithm.class);
+	private static final String ALGO = "AES";
+	
+	/** Encrypt a string with AES Algo 
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
+	 * @throws BadPaddingException 
+	 * @throws IllegalBlockSizeException **/
+	public static String encrypt(String data,String keyValue) throws Exception{
+		logger.debug("Entry into encrpt data using AES Algo");
+		Key key = generateKey(keyValue);
+		Cipher c = Cipher.getInstance(ALGO);
+		c.init(Cipher.ENCRYPT_MODE,key);
+		byte[] encryptVal = c.doFinal(data.getBytes());
+		logger.debug("Exit from encrpt data using AES Algo");
+		return new String(Base64.getEncoder().encode(encryptVal));
+	}
+
+	/** Generate a new encryption key **/
+	private static Key generateKey(String keyValue) {
+		logger.debug("Entry into generate Key");
+		byte[] key = keyValue.getBytes();
+		logger.debug("Exit from generate Key");
+		return new SecretKeySpec(key,ALGO);
+	}
+}

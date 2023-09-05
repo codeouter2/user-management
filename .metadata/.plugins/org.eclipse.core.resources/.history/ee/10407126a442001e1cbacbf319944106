@@ -1,0 +1,6 @@
+package com.auth.user.management.controller;
+
+public class UserController {
+
+	
+}

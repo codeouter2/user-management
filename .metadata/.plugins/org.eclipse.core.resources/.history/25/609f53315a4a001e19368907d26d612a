@@ -1,0 +1,10 @@
+package com.auth.user.management.util;
+
+import org.springframework.http.HttpHeaders;
+
+public class ValidationHeaders {
+
+	public static HttpHeaders getHttpHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+	}
+}

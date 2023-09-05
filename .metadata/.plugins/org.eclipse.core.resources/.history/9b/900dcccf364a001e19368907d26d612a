@@ -1,0 +1,10 @@
+captcha.enable=true
+captcha.expire.in.second=180
+captcha.encryption.key=TheBestSecretKey
+captcha.length=7
+captcha.only.with.upper.letter=false
+captcha.only.with.lower.letter=true
+captcha.only.with.both.letter=false
+captcha.with.upper.and.number=false
+captcha.with.lower.and.number=false
+captcha.with.alphanumeric=false

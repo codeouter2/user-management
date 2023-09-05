@@ -1,0 +1,19 @@
+package com.auth.user.management.service.impl;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
+import com.auth.user.management.service.UserService;
+
+@Service
+public class UserServiceImpl implements UserService{
+	
+	final static Logger logger = LogManager.getLogger(UserServiceImpl.class);
+
+	@Override
+	public void captcha() {
+		logger.debug("Entryt into - captcha processing");
+		
+	}
+}
